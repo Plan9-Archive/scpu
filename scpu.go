@@ -4,8 +4,8 @@ package main
 
 import (
 	"bitbucket.org/mischief/libauth"
-	"code.google.com/p/go.crypto/ssh"
 	"bytes"
+	"code.google.com/p/go.crypto/ssh"
 	"crypto"
 	"crypto/rsa"
 	"flag"
@@ -55,9 +55,7 @@ func (k *keyring) Key(i int) (key ssh.PublicKey, err error) {
 		return nil, nil
 	}
 
-	log.Printf("Key: ek=%X n=%X", k.keys[i].E, k.keys[i].N)
 	key, err = ssh.NewPublicKey(&k.keys[i])
-
 	return
 }
 
