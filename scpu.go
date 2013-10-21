@@ -1,31 +1,76 @@
+// SSH client program using factotum for auth
+//
 package main
 
 import (
 	"bitbucket.org/mischief/libauth"
 	"code.google.com/p/go.crypto/ssh"
+	"bytes"
+	"crypto"
+	"crypto/rsa"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
-	"strings"
+	"strconv"
 )
 
 var (
 	user   = flag.String("u", os.Getenv("user"), "username")
 	server = flag.String("h", os.Getenv("scpu"), "ssh server")
+	port   = flag.String("p", "22", "server port")
 	cmd    = flag.String("c", "", "remote command")
 )
 
+// ClientPassword implementation
 type password struct{}
 
 func (p password) Password(user string) (string, error) {
-	host := strings.Split(*server, ":")[0]
-	pw, err := libauth.Getuserpasswd("proto=pass service=ssh role=client server=%s user=%s", host, user)
+	pw, err := libauth.Getuserpasswd("proto=pass service=ssh role=client server=%s user=%s", *server, user)
 	if err != nil {
 		return "", err
 	}
 
 	return pw, nil
+}
+
+// ClientKeyring implementation
+type keyring struct {
+	keys []rsa.PublicKey
+}
+
+func NewKeyring() *keyring {
+	k, err := libauth.Listkeys()
+	if err != nil {
+		log.Printf("libauth.Listkeys error: %s", err)
+		return nil
+	}
+
+	return &keyring{k}
+}
+
+func (k *keyring) Key(i int) (key ssh.PublicKey, err error) {
+	if i < 0 || i >= len(k.keys) {
+		return nil, nil
+	}
+
+	log.Printf("Key: ek=%X n=%X", k.keys[i].E, k.keys[i].N)
+	key, err = ssh.NewPublicKey(&k.keys[i])
+
+	return
+}
+
+func (k *keyring) Sign(i int, rand io.Reader, data []byte) (sig []byte, err error) {
+	hashfun := crypto.SHA1
+	h := hashfun.New()
+	h.Write(data)
+	digest := h.Sum(nil)
+
+	proxybuf := new(bytes.Buffer)
+	proxybuf.Write(digest)
+	sig, err = libauth.RsaSign(proxybuf.Bytes())
+	return
 }
 
 func main() {
@@ -39,18 +84,18 @@ func main() {
 		log.Fatal("set $scpu or -h flag")
 	}
 
-	pw := password{}
-	if pwstr, err := pw.Password(*user); pwstr == "" || err != nil {
-		log.Fatalf("no password: %s", err)
-	}
+	ring := NewKeyring()
 
 	config := &ssh.ClientConfig{
 		User: *user,
 		Auth: []ssh.ClientAuth{
+			ssh.ClientAuthKeyring(ring),
 			ssh.ClientAuthPassword(password{}),
 		},
 	}
-	conn, err := ssh.Dial("tcp", *server, config)
+
+	dial := fmt.Sprintf("%s:%s", *server, *port)
+	conn, err := ssh.Dial("tcp", dial, config)
 
 	if err != nil {
 		log.Fatalf("dial: %s", err)
@@ -58,11 +103,20 @@ func main() {
 
 	session, err := conn.NewSession()
 	if err != nil {
-		fmt.Printf("session: %s", err)
-		os.Exit(1)
+		log.Fatalf("newsession: %s", err)
 	}
 
 	defer session.Close()
+
+	in, err := session.StdinPipe()
+	if err != nil {
+		log.Fatalf("stdinpipe: %s", err)
+	}
+
+	go func() {
+		io.Copy(in, os.Stdin)
+		session.Close()
+	}()
 
 	session.Stdin = os.Stdin
 	session.Stdout = os.Stdout
@@ -75,20 +129,25 @@ func main() {
 	}
 
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
+}
+
+func tonumber(s string) int {
+	n, _ := strconv.Atoi(s)
+	return n
 }
 
 func interactive(session *ssh.Session) error {
 	// Set up terminal modes
 	modes := ssh.TerminalModes{
-		ssh.ECHO:          0,     // disable echoing
-		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
-		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+		//ssh.ECHO:          0,     // disable echoing
+		ssh.TTY_OP_ISPEED: 115200, // input speed = 14.4kbaud
+		ssh.TTY_OP_OSPEED: 115200, // output speed = 14.4kbaud
 	}
 	// Request pseudo terminal
-	if err := session.RequestPty("xterm", 80, 24, modes); err != nil {
+	if err := session.RequestPty(os.Getenv("TERM"), tonumber(os.Getenv("LINES")), tonumber(os.Getenv("COLS")), modes); err != nil {
 		fmt.Errorf("request for pseudo terminal failed: %s", err)
 	}
 	// Start remote shell
