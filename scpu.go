@@ -4,6 +4,7 @@ package main
 
 import (
 	"bitbucket.org/mischief/libauth"
+	"bufio"
 	"bytes"
 	"code.google.com/p/go.crypto/ssh"
 	"crypto"
@@ -21,6 +22,7 @@ var (
 	server = flag.String("h", os.Getenv("scpu"), "ssh server")
 	port   = flag.String("p", "22", "server port")
 	cmd    = flag.String("c", "", "remote command")
+	nocr   = flag.Bool("r", false, "strip carriage returns")
 )
 
 // ClientPassword implementation
@@ -117,8 +119,14 @@ func main() {
 	}()
 
 	session.Stdin = os.Stdin
-	session.Stdout = os.Stdout
-	session.Stderr = os.Stderr
+
+	if *nocr == true {
+		session.Stdout = &CrStripper{bufio.NewWriter(os.Stdout)}
+		session.Stderr = &CrStripper{bufio.NewWriter(os.Stderr)}
+	} else {
+		session.Stdout = os.Stdout
+		session.Stderr = os.Stderr
+	}
 
 	if *cmd != "" {
 		err = command(session, *cmd)
@@ -162,4 +170,20 @@ func interactive(session *ssh.Session) error {
 
 func command(session *ssh.Session, cmd string) error {
 	return session.Run(cmd)
+}
+
+type CrStripper struct {
+	out *bufio.Writer
+}
+
+func (cr *CrStripper) Write(s []byte) (int, error) {
+	for _, b := range s {
+		if b != '\r' {
+			cr.out.WriteByte(b)
+		}
+	}
+
+	cr.out.Flush()
+
+	return len(s), nil
 }
