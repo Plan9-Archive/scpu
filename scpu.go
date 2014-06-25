@@ -7,7 +7,6 @@ import (
 	"bufio"
 	"bytes"
 	"code.google.com/p/go.crypto/ssh"
-"time"
 	"crypto"
 	"crypto/rsa"
 	"flag"
@@ -17,6 +16,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 var (
@@ -44,7 +44,10 @@ type rsaSigner struct {
 }
 
 func (r *rsaSigner) PublicKey() ssh.PublicKey {
-	k, _ := ssh.NewPublicKey(r.k)
+	k, err := ssh.NewPublicKey(&r.k)
+	if err != nil {
+		log.Fatalf("error parsing key: %s", err)
+	}
 	return k
 }
 
@@ -64,7 +67,7 @@ func (r *rsaSigner) Sign(rand io.Reader, data []byte) (*ssh.Signature, error) {
 
 	sshsig := &ssh.Signature{
 		Format: "ssh-rsa",
-		Blob: sig,
+		Blob:   sig,
 	}
 
 	return sshsig, nil
@@ -81,6 +84,7 @@ func GetSigners() ([]ssh.Signer, error) {
 	for i := range k {
 		signers[i] = &rsaSigner{k[i]}
 	}
+
 	return signers, nil
 }
 
@@ -103,7 +107,7 @@ func main() {
 		},
 	}
 
-	dial := fmt.Sprintf("%s:%s", *server, *port)
+	dial := *server + ":" + *port
 	conn, err := ssh.Dial("tcp", dial, config)
 
 	if err != nil {
@@ -160,12 +164,12 @@ func tonumberu32(s string) uint32 {
 }
 
 func envs(key string) string {
-	buf, _ := ioutil.ReadFile("/env/"+key)
+	buf, _ := ioutil.ReadFile("/env/" + key)
 	return string(buf)
 }
 
 func envu32(key string) uint32 {
-	buf, _ := ioutil.ReadFile("/env/"+key)
+	buf, _ := ioutil.ReadFile("/env/" + key)
 	return tonumberu32(string(buf))
 }
 
@@ -182,16 +186,16 @@ func interactive(session *ssh.Session) error {
 	}
 
 	// Possibly auto-resize
-	if(*resize){
+	if *resize {
 		var wc struct {
-			columns uint32
-			rows	uint32
-			width_px uint32
+			columns   uint32
+			rows      uint32
+			width_px  uint32
 			height_px uint32
 		}
 		wc.columns = envu32("COLS")
 		wc.rows = envu32("LINES")
-		go func(){
+		go func() {
 			for {
 				time.Sleep(1 * time.Second)
 				if envu32("COLS") != wc.columns {
