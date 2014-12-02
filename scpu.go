@@ -3,10 +3,8 @@
 package main
 
 import (
-	"bitbucket.org/mischief/libauth"
 	"bufio"
 	"bytes"
-	"code.google.com/p/go.crypto/ssh"
 	"crypto"
 	"crypto/rsa"
 	"flag"
@@ -17,6 +15,10 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"golang.org/x/crypto/ssh"
+
+	"bitbucket.org/mischief/libauth"
 )
 
 var (
