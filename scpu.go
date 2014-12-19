@@ -22,12 +22,13 @@ import (
 )
 
 var (
-	user   = flag.String("u", os.Getenv("user"), "username")
-	server = flag.String("h", os.Getenv("scpu"), "ssh server")
-	port   = flag.String("p", "22", "server port")
-	cmd    = flag.String("c", "", "remote command")
-	nocr   = flag.Bool("r", false, "strip carriage returns")
-	resize = flag.Bool("z", false, "poll environment variables to resize automatically")
+	user    = flag.String("u", os.Getenv("user"), "username")
+	server  = flag.String("h", os.Getenv("scpu"), "ssh server")
+	port    = flag.String("p", "22", "server port")
+	cmd     = flag.String("c", "", "remote command")
+	nocr    = flag.Bool("r", false, "strip carriage returns")
+	resize  = flag.Bool("z", false, "poll environment variables to resize automatically")
+	verbose = flag.Bool("v", false, "verbose output on stderr")
 )
 
 // ssh.PasswordCallback implementation
@@ -150,9 +151,11 @@ func main() {
 	}
 
 	if err != nil {
-		log.Print(err)
+		if *verbose {
+			log.Printf("remote: %s", err)
+		}
+		os.Exit(1)
 	}
-
 }
 
 func tonumber(s string) int {
