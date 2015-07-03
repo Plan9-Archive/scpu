@@ -16,9 +16,9 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/crypto/ssh"
+	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/golang.org/x/crypto/ssh"
 
-	"bitbucket.org/mischief/libauth"
+	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/bitbucket.org/mischief/libauth"
 )
 
 var (

@@ -1,0 +1,22 @@
+{
+	"ImportPath": "bitbucket.org/mischief/scpu",
+	"GoVersion": "go1.4.2",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "9fans.net/go/plan9",
+			"Rev": "1414b39760e9db92db523b94b88293f7aebca993"
+		},
+		{
+			"ImportPath": "bitbucket.org/mischief/libauth",
+			"Comment": "null-16",
+			"Rev": "b2c28a05341ce4c3247db6e37179b8c9aba2b43b"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/ssh",
+			"Rev": "cc04154d65fb9296747569b107cfd05380b1ea3e"
+		}
+	]
+}
