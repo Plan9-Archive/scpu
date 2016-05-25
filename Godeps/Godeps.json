@@ -11,9 +11,25 @@
 			"Rev": "1414b39760e9db92db523b94b88293f7aebca993"
 		},
 		{
+			"ImportPath": "9fans.net/go/plan9/client",
+			"Rev": "1414b39760e9db92db523b94b88293f7aebca993"
+		},
+		{
 			"ImportPath": "bitbucket.org/mischief/libauth",
 			"Comment": "null-17",
 			"Rev": "'16f07c6f905cd180a1b017e731abb624a3502bcb'"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/curve25519",
+			"Rev": "5bcd134fee4dd1475da17714aac19c0aa0142e2f"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/ed25519",
+			"Rev": "5bcd134fee4dd1475da17714aac19c0aa0142e2f"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/ed25519/internal/edwards25519",
+			"Rev": "5bcd134fee4dd1475da17714aac19c0aa0142e2f"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/ssh",
