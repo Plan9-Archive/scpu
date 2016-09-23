@@ -16,8 +16,8 @@
 		},
 		{
 			"ImportPath": "bitbucket.org/mischief/libauth",
-			"Comment": "null-18",
-			"Rev": "'8faf7795c30d4017f095320554024a53d92fc3a7'"
+			"Comment": "null-19",
+			"Rev": "'eb5acc10251bb6db077aa8c9e5446eae0993676d'"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/curve25519",
