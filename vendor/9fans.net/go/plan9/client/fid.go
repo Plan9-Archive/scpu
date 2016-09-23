@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/9fans.net/go/plan9"
+	"9fans.net/go/plan9"
 )
 
 func getuser() string { return os.Getenv("USER") }

@@ -16,9 +16,8 @@ import (
 	"strconv"
 	"time"
 
-	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/golang.org/x/crypto/ssh"
-
-	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/bitbucket.org/mischief/libauth"
+	"bitbucket.org/mischief/libauth"
+	"golang.org/x/crypto/ssh"
 )
 
 var (
@@ -36,6 +35,10 @@ func Password() (string, error) {
 	pw, err := libauth.Getuserpasswd("proto=pass service=ssh role=client server=%s user=%s", *server, *user)
 	if err != nil {
 		return "", err
+	}
+
+	if *verbose {
+		log.Printf("using password %q", pw)
 	}
 
 	return pw, nil
@@ -79,8 +82,10 @@ func (r *rsaSigner) Sign(rand io.Reader, data []byte) (*ssh.Signature, error) {
 func GetSigners() ([]ssh.Signer, error) {
 	k, err := libauth.Listkeys()
 	if err != nil {
-		err = fmt.Errorf("libauth.Listkeys error: %s", err)
-		return nil, err
+		if *verbose {
+			log.Printf("failed to get keys from factotum: %v", err)
+		}
+		return nil, nil
 	}
 
 	signers := make([]ssh.Signer, len(k))

@@ -21,7 +21,7 @@ import (
 	"io"
 	"strconv"
 
-	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/golang.org/x/crypto/ed25519/internal/edwards25519"
+	"golang.org/x/crypto/ed25519/internal/edwards25519"
 )
 
 const (

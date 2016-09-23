@@ -6,8 +6,8 @@ import (
 	"io"
 	"os"
 
-	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/9fans.net/go/plan9"
-	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/9fans.net/go/plan9/client"
+	"9fans.net/go/plan9"
+	"9fans.net/go/plan9/client"
 )
 
 func openRPC() (io.ReadWriteCloser, error) {

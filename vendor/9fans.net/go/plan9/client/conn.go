@@ -5,7 +5,7 @@ import (
 	"io"
 	"sync"
 
-	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/9fans.net/go/plan9"
+	"9fans.net/go/plan9"
 )
 
 type Error string

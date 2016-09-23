@@ -1,7 +1,7 @@
 {
 	"ImportPath": "bitbucket.org/mischief/scpu",
-	"GoVersion": "go1.4.2",
-	"GodepVersion": "v60",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
 	"Packages": [
 		"./..."
 	],

@@ -21,7 +21,7 @@ import (
 	"math/big"
 	"strings"
 
-	"bitbucket.org/mischief/scpu/Godeps/_workspace/src/golang.org/x/crypto/ed25519"
+	"golang.org/x/crypto/ed25519"
 )
 
 // These constants represent the algorithm names for key types supported by this
